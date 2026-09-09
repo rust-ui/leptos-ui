@@ -158,7 +158,7 @@ jobs:
         docker-images: false
         swap-storage: false
 
-      - name: Log in to Docker Hub
+    - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ vars.DOCKER_USERNAME }}
