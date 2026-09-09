@@ -17,6 +17,7 @@ This phase is cleanup and ownership correction only. It does not introduce Dioxu
 - Rollback to the previous parent deployment is documented and tested.
 - The parent repository contains no unique Leptos asset that is not copied or intentionally retained.
 - A final inventory diff has been reviewed before deletion.
+- Parent Git and submodule metadata validate cleanly before cleanup begins.
 
 ## Non-goals
 
@@ -73,8 +74,10 @@ Do not delete a file solely because it mentions Leptos. First verify whether it 
 
 - Record the last parent commit that can roll back production.
 - Record the first production commit deployed from `leptos-ui`.
+- Record the deployed `leptos-ui` commit, image SHA, deployment date, and observation-window end date.
 - Save route, asset, health, bug-report, and Tauri validation results.
 - Record every deletion candidate and its replacement path.
+- Store these records in a reviewed Phase 3 inventory artifact before deleting source.
 - Confirm no uncommitted user work is included in cleanup commits.
 
 ### 3.2 Classify parent files
@@ -89,6 +92,8 @@ For each candidate, classify:
 - `unknown`: block deletion until resolved.
 
 Any `unknown` item blocks destructive cleanup.
+
+For every duplicated path, compare parent and `leptos-ui` content before classification. Mark divergent files explicitly; matching names alone do not prove safe deletion.
 
 ### 3.3 Remove duplicate website source
 
@@ -107,6 +112,7 @@ Any `unknown` item blocks destructive cleanup.
 - Keep internal registry/build tooling and platform scripts where they are.
 - Keep a documented manual rollback command until the observation window ends.
 - Search workflow paths, working directories, image names, artifact paths, and secret names for stale parent assumptions.
+- Confirm parent workflow removal does not remove Dioxus, registry, or shared infrastructure automation.
 
 ### 3.5 Clean governance and documentation
 
@@ -126,6 +132,7 @@ Any `unknown` item blocks destructive cleanup.
 ### 3.7 Validate parent after cleanup
 
 - `cargo metadata --no-deps --format-version 1` succeeds.
+- `git submodule status` and `.gitmodules` validation succeed with no orphaned gitlink.
 - Parent retained packages compile with no deleted path dependencies.
 - Parent CI workflows reference only existing paths.
 - Registry/build tooling still resolves its intended source directories.
@@ -174,6 +181,7 @@ Phase 3 is complete only when:
 - Production persistence and rollback are unchanged and verified.
 - Governance/docs point to the correct repository.
 - No `unknown` inventory item remains.
+- Phase 3 inventory artifact records every deletion, replacement, retained shared path, and rollback reference.
 - Cleanup commits are pushed and production monitoring shows no regression.
 
 ## Deferred next phase
