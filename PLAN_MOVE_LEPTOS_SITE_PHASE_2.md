@@ -25,16 +25,20 @@ Goal: deploy the current Leptos website directly from this repository. Parent re
 - Remove temporary duplicated `app_crates/**` after the replacement structure is stable.
 - Remove obsolete parent deployment wiring only after this repository deploy is proven in production.
 - Separate or migrate shared production infrastructure ownership.
-- Full production run, DNS/TLS validation, secret validation, and rollback drill.
+- Verify SQLite persistence after container recreation.
+- Run and document rollback drill using a previously published SHA image.
+- Validate Tauri web, desktop, iOS, and iPad behavior and assign ownership.
 
 ## Validation checklist
 
-- [ ] TODO: add `DOCKER_USERNAME` and `SERVER_IP` as Actions Variables.
-- [ ] TODO: add `DOCKER_TOKEN`, `RESEND_TOKEN`, `RESEND_AUDIENCE_ID`, `BUG_REPORTS_API_KEY`, and `SERVER_SSH_KEY` as Actions Secrets.
+- [x] Configure `DOCKER_USERNAME` and `SERVER_IP` as Actions Variables.
+- [x] Configure `DOCKER_TOKEN`, `RESEND_TOKEN`, `RESEND_AUDIENCE_ID`, `BUG_REPORTS_API_KEY`, and `SERVER_SSH_KEY` as Actions Secrets.
 - [x] Run `cargo check --workspace`.
 - [x] Run `cargo check --manifest-path src-tauri/Cargo.toml`.
-- [ ] Run `docker build -f Dockerfile .` or the GitHub build job.
-- [ ] Trigger workflow from this repository.
-- [ ] Confirm `/` health check and real domain traffic.
+- [x] Run `docker build -f Dockerfile .` or the GitHub build job.
+- [x] Trigger workflow from this repository.
+- [x] Confirm `/` health check and real domain traffic.
 - [ ] Submit bug report, recreate container, confirm SQLite data remains.
+- [ ] Run rollback drill using a previously published SHA image.
+- [ ] Validate Tauri web, desktop, iOS, and iPad behavior.
 - [ ] Confirm old parent deployment still unchanged until cutover decision.

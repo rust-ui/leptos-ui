@@ -8,7 +8,8 @@ Phase boundaries:
 
 - Phase 1: copy and make current Leptos website + Tauri work.
 - Phase 2: deploy from `leptos-ui`, then remove temporary `app_crates` structure. See `PLAN_MOVE_LEPTOS_SITE_PHASE_2.md`.
-- Phase 3: replace Leptos with Dioxus. See `PLAN_MOVE_LEPTOS_SITE_PHASE_3.md`.
+- Phase 3: remove duplicated Leptos website material from the parent repository. See `PLAN_MOVE_LEPTOS_SITE_PHASE_3.md`.
+- Dioxus replacement is deferred to a later phase with its own plan.
 
 Phase 1 does not migrate production deployment ownership and does not remove `app_crates`.
 
