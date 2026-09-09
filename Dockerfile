@@ -29,7 +29,11 @@ COPY --from=planner /app/recipe.json recipe.json
 # Disable sccache as it's not installed in the container
 ENV RUSTC_WRAPPER=""
 
-# Path dependencies must exist before cargo chef cook can resolve them
+# Path dependencies must exist before cargo chef cook can resolve them.
+COPY app_crates app_crates
+COPY crates/autoform crates/autoform
+COPY crates/icons crates/icons
+COPY crates/leptos_ui crates/leptos_ui
 COPY crates/tw_merge crates/tw_merge
 COPY crates/_markdown_crate crates/_markdown_crate
 
