@@ -73,14 +73,7 @@ Crate classification from `RUST-UI/crates`:
 | `crates/_starters/start-dioxus-fullstack` | Dioxus | Exclude |
 | `crates/_starters/start-tauri*` | Tauri/desktop | Exclude |
 
-Registry build tooling to keep available for generated site data:
-
-```text
-rust_ui_internals/build_registry/**
-rust_ui_internals/scripts/optimize_images.sh
-```
-
-`build_registry` depends on `crates/_markdown_config` and `crates/_markdown_crate`; copy `crates/_markdown_config/**` with it, but keep `build_registry_dioxus/**` excluded. Decide whether generated files under `public/` and `app/src/__registry__/` are committed artifacts or CI outputs. Do not let destination website depend on source parent paths.
+Registry-generated files are copied for Phase 1. Registry build tooling stays outside this repository. `crates/_markdown_config/**` is included only when required by external registry generation. Decide whether generated files under `public/` and `app/src/__registry__/` are committed artifacts or CI outputs. Do not let destination website depend on source parent paths.
 
 Important Leptos-only file groups inside shared crates:
 
@@ -135,13 +128,7 @@ Phase 2 deployment inventory only. Do not move or activate deployment ownership 
 .github/workflows/**
 docker-compose.prod.yml
 nginx.conf
-rust_ui_internals/deploy_prod_vps.sh
-rust_ui_internals/!!!_DEPLOYMENT/DEPLOY_VPS.md
-rust_ui_internals/setup__remote/_SETUP.sh
-rust_ui_internals/setup__remote/setup_docker.sh
-rust_ui_internals/setup__remote/setup_nginx.sh
-rust_ui_internals/setup__remote/security_fail2ban.sh
-rust_ui_internals/setup__remote/security_firewall.sh
+parent deployment scripts and setup docs
 ```
 
 These files stay source-of-truth inventory for Phase 2. Rewrite only during Phase 2:
@@ -151,8 +138,7 @@ These files stay source-of-truth inventory for Phase 2. Rewrite only during Phas
 Dockerfile
 docker-compose.prod.yml
 nginx.conf
-rust_ui_internals/deploy_prod_vps.sh
-rust_ui_internals/!!!_DEPLOYMENT/DEPLOY_VPS.md
+parent deployment scripts and setup docs
 ```
 
 Update repository name, Docker image, GitHub secrets, server paths, domain routing, health URL, and Leptos output paths. Never copy real `.env` or secret values.
@@ -187,8 +173,8 @@ Check before declaring standalone repo ready:
 - `app/build.rs` hashes CSS using paths containing `target/site` and output name `deploy_rust_ui`; update if package/output name changes.
 - Docker `cargo chef cook` must see every local path dependency before cook, not only `crates/tw_merge` and `_markdown_crate`.
 - Root and nested lockfiles must be intentionally regenerated or retained: `Cargo.lock`, `src-tauri/Cargo.lock`, `e2e/pnpm-lock.yaml`, and `crates/tw_merge/Cargo.lock`.
-- `.gitignore` currently ignores `rust_ui_internals/` and `src-tauri/gen/`; adjust destination ignore rules if tracked deployment/Tauri files are required.
-- `rust_ui_internals/build_registry/**` writes generated registry files into app/public paths; preserve its working directory and input/output paths.
+- `.gitignore` may ignore registry tooling and `src-tauri/gen/`; adjust destination ignore rules if tracked Tauri files are required.
+- External registry builder writes generated files into app/public paths; preserve its working directory and input/output paths.
 - `crates/icons`, `_markdown_crate`, and `tw_merge` currently contain nested repository metadata or standalone workspace assumptions; destination must have one coherent Git/Cargo workspace.
 - `Cargo.toml` package names and output names can collide with the old project; choose stable names before release and update Tauri/Leptos config together.
 - `nginx.conf` contains both Rust UI and Dioxus virtual-host blocks. Keep Dioxus routing only if shared server still owns it; otherwise split config.
@@ -221,14 +207,7 @@ __HideKeyboardAccessory.m
 Platform scripts stay in source parent for now; do not move them:
 
 ```text
-RUST-UI/rust_ui_internals/deploy_desktop_all.sh
-RUST-UI/rust_ui_internals/deploy_desktop_notarized.sh
-RUST-UI/rust_ui_internals/deploy_desktop_notarized_offline.sh
-RUST-UI/rust_ui_internals/deploy_ios.sh
-RUST-UI/rust_ui_internals/deploy_ios_testflight.sh
-RUST-UI/rust_ui_internals/run_ios.sh
-RUST-UI/rust_ui_internals/run_ipad.sh
-RUST-UI/rust_ui_internals/generate_animated_icons.sh
+parent desktop/iOS deployment and generation scripts
 ```
 
 They may later receive a separate adapter/config update for `leptos-ui`. Never copy certificates, provisioning profiles, private keys, or secret values. Tauri must remain optional; it must not block SSR/hydrate builds.
@@ -255,7 +234,7 @@ X__TMP/**
 specs/**
 ```
 
-`rust_ui_internals/**` exception: copy only deployment files listed above. Keep desktop/iOS platform scripts in parent. Exclude other internal research/assets.
+Keep parent-only deployment, setup, desktop/iOS scripts, and internal research/assets outside this repository.
 
 Inside `crates/icons`, Dioxus modules may remain because crate currently shares source:
 
@@ -373,7 +352,7 @@ CONTRIBUTING.md
 LICENSE
 README.md
 README_WINDOWS.md
-SECURITY.md                         # source: rust_ui_internals/SECURITY.md
+SECURITY.md                         # copy/adapt from source repository policy
 _typos.toml
 .gitattributes
 .gitignore

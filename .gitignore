@@ -1,0 +1,38 @@
+# Rust / Cargo
+**/target/
+pkg
+**/*.rs.bk
+
+# Tauri
+src-tauri/gen/
+src-tauri/*.bak
+
+# Node
+node_modules/
+package-lock.json
+
+# MSVC
+*.pdb
+
+# Apple
+**/.DS_Store
+**/Icon\r
+
+# Environment
+.env
+.env.apple
+
+# Playwright
+.playwright-mcp
+test-results/
+
+# Unlighthouse
+.unlighthouse
+
+# SQLite
+bug_reports.db
+
+# Temporary
+X__TMP
+
+# Internal registry builder needed by Phase 1
