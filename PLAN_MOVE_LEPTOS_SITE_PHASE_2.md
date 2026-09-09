@@ -29,8 +29,8 @@ Goal: deploy the current Leptos website directly from this repository. Parent re
 
 ## Validation checklist
 
-- [ ] Run `cargo check --workspace`.
-- [ ] Run `cargo check --manifest-path src-tauri/Cargo.toml`.
+- [x] Run `cargo check --workspace`.
+- [x] Run `cargo check --manifest-path src-tauri/Cargo.toml`.
 - [ ] Run `docker build -f Dockerfile .` or the GitHub build job.
 - [ ] Trigger workflow from this repository.
 - [ ] Confirm `/` health check and real domain traffic.
