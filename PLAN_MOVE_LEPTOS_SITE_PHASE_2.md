@@ -29,6 +29,8 @@ Goal: deploy the current Leptos website directly from this repository. Parent re
 
 ## Validation checklist
 
+- [ ] TODO: add `DOCKER_USERNAME` and `SERVER_IP` as Actions Variables.
+- [ ] TODO: add `DOCKER_TOKEN`, `RESEND_TOKEN`, `RESEND_AUDIENCE_ID`, `BUG_REPORTS_API_KEY`, and `SERVER_SSH_KEY` as Actions Secrets.
 - [x] Run `cargo check --workspace`.
 - [x] Run `cargo check --manifest-path src-tauri/Cargo.toml`.
 - [ ] Run `docker build -f Dockerfile .` or the GitHub build job.
