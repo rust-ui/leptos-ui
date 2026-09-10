@@ -1,5 +1,11 @@
 # Phase 3 — remove migrated Leptos site from parent repository
 
+## Status
+
+Source cleanup is complete on parent `main` at commit `34ecfa5`.
+Production deploy from `leptos-ui` is live from commit `75b833e`.
+Remaining items are post-cleanup verification gates: SQLite recreation, rollback drill, and Tauri target validation.
+
 ## Goal
 
 After Phase 2 is proven in production, remove from the parent repository all website and Leptos application material that now lives in `leptos-ui`.
@@ -8,15 +14,15 @@ This phase is cleanup and ownership correction only. It does not introduce Dioxu
 
 ## Preconditions
 
-- Phase 2 deploy succeeds directly from `leptos-ui`.
+- Phase 2 deploy succeeds directly from `leptos-ui` (confirmed; deployed commit `75b833e`).
 - Production health checks pass from the new repository workflow.
 - Real domain traffic reaches the new deployment.
 - Bug reports work through remote forwarding and local SQLite fallback.
 - SQLite persistence survives container recreation.
 - Tauri web, desktop, iOS, and iPad behavior has an explicit owner and tested source.
-- Rollback to the previous parent deployment is documented and tested.
+- Rollback to the previous parent deployment is documented; drill remains a follow-up gate.
 - The parent repository contains no unique Leptos asset that is not copied or intentionally retained.
-- A final inventory diff has been reviewed before deletion.
+- A final inventory diff has been reviewed before deletion in `specs/PHASE_3_INVENTORY.md`.
 - Parent Git and submodule metadata validate cleanly before cleanup begins.
 
 ## Non-goals
@@ -171,18 +177,24 @@ Push and validate each logical commit. Never combine database, infrastructure, a
 
 ## Exit criteria
 
-Phase 3 is complete only when:
+Phase 3 source cleanup is complete when:
 
 - Parent no longer contains duplicate Leptos website source.
 - `leptos-ui` remains independently buildable and deployable.
 - Parent retained workspace and internal tooling remain healthy.
 - Website deploy workflow has one clear source of truth.
 - Tauri/platform ownership is explicit and tested.
-- Production persistence and rollback are unchanged and verified.
+- Production persistence and rollback follow-up checks are recorded and closed.
 - Governance/docs point to the correct repository.
 - No `unknown` inventory item remains.
 - Phase 3 inventory artifact records every deletion, replacement, retained shared path, and rollback reference.
-- Cleanup commits are pushed and production monitoring shows no regression.
+- Cleanup commit `34ecfa5` is merged and pushed to parent `main`; production monitoring shows no regression.
+
+Post-cleanup gates still open:
+
+- Verify SQLite persistence after container recreation.
+- Run and record rollback drill against a previously published image.
+- Validate Tauri web, desktop, iOS, and iPad targets from `leptos-ui`.
 
 ## Deferred next phase
 
