@@ -1,0 +1,31 @@
+# Production compose for the shared server (shared-apps / rust-ui.com host).
+#
+# Deployed by .github/workflows/prod-vps.yml: the workflow scp's this file to
+# ~/leptos-ui/ on the server, exports DOCKER_USERNAME / DOCKER_REPOSITORY /
+# IMAGE_TAG (see .env.production for the values used locally), then runs
+# `docker compose -f docker-compose.shared-server.yml up -d`.
+#
+# Container name becomes `leptos-ui-app-1` (dir `leptos-ui` + service `app`).
+# Host nginx (conf.d/rust-ui.conf) proxies rust-ui.com, www.rust-ui.com and
+# leptos.rust-ui.com to 127.0.0.1:4002 → this container's :3000.
+services:
+  app:
+    image: ${DOCKER_USERNAME}/${DOCKER_REPOSITORY}:${IMAGE_TAG}
+    ports:
+      # host 4002 → container 3000. Bound to loopback only; public traffic
+      # arrives through host nginx. 4001 is the OLD leptos container (root-app-1),
+      # kept alive during cutover — do not reuse it here.
+      - "127.0.0.1:4002:3000"
+    environment:
+      # Matches Dockerfile default; kept explicit so the port mapping above is
+      # self-evidently correct.
+      - LEPTOS_SITE_ADDR=0.0.0.0:3000
+    volumes:
+      # Bug-report SQLite lives at /tmp/bug_reports.db in release builds. Volume
+      # keeps it across container recreation. RUSTIFY API remains the durable
+      # system of record; this is best-effort local retention.
+      - bug_reports_data:/tmp
+    restart: always
+
+volumes:
+  bug_reports_data:

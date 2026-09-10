@@ -1,8 +1,10 @@
-name: Build, Test and Deploy Leptos SSR App
+name: Build, Test and Deploy Leptos SSR App (leptos.rust-ui.com)
 
-# TODO: configure Actions Variables `DOCKER_USERNAME` and `SERVER_IP`.
-# TODO: configure Actions Secret `DOCKER_TOKEN`, `RESEND_TOKEN`,
-# TODO: `RESEND_AUDIENCE_ID`, `BUG_REPORTS_API_KEY`, and `SERVER_SSH_KEY`.
+# Deploys rust-ui/leptos-ui to shared-apps as leptos-ui-app-1 on 127.0.0.1:4002.
+# Host nginx routes leptos.rust-ui.com -> 127.0.0.1:4002.
+# Requires Actions Variables `DOCKER_USERNAME`, `SERVER_IP`, `RUSTIFY_API_URL`.
+# Requires Actions Secrets `DOCKER_TOKEN`, `RESEND_TOKEN`,
+# `RESEND_AUDIENCE_ID`, `BUG_REPORTS_API_KEY`, and `SERVER_SSH_KEY`.
 on:
   # 🖥️ gh workflow run prod-vps.yml
   # 🖥️ gh workflow run prod-vps.yml -f skip_build=true   ← redeploy only, no rebuild
@@ -178,8 +180,8 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: |
-          ${{ vars.DOCKER_USERNAME }}/deploy-rust-ui:${{ steps.tag.outputs.sha }}
-          ${{ vars.DOCKER_USERNAME }}/deploy-rust-ui:latest
+          ${{ vars.DOCKER_USERNAME }}/leptos-ui:${{ steps.tag.outputs.sha }}
+          ${{ vars.DOCKER_USERNAME }}/leptos-ui:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
         build-args: |
@@ -209,22 +211,23 @@ jobs:
         chmod 600 ~/.ssh/deploy_key
         ssh-keyscan -H ${{ vars.SERVER_IP }} >> ~/.ssh/known_hosts
 
-    - name: Copy configs to server
+    - name: Copy compose file to server
       run: |
-        ${{ env.SCP }} docker-compose.prod.yml root@${{ vars.SERVER_IP }}:~
+        ${{ env.SSH }} "mkdir -p ~/leptos-ui"
+        ${{ env.SCP }} docker-compose.shared-server.yml root@${{ vars.SERVER_IP }}:~/leptos-ui/
 
     - name: Docker login on server
       run: |
         ${{ env.SSH }} "echo '${{ secrets.DOCKER_TOKEN }}' | docker login -u '${{ vars.DOCKER_USERNAME }}' --password-stdin"
 
-    - name: Deploy app and nginx
+    - name: Deploy app
       run: |
-        ${{ env.SSH }} "cd ~ && export APP_IMAGE=${{ vars.DOCKER_USERNAME }}/deploy-rust-ui:latest && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d"
+        ${{ env.SSH }} "cd ~/leptos-ui && export DOCKER_USERNAME=${{ vars.DOCKER_USERNAME }} && export DOCKER_REPOSITORY=leptos-ui && export IMAGE_TAG=latest && docker compose -f docker-compose.shared-server.yml down && docker rm -f leptos-ui-app-1 2>/dev/null || true && docker compose -f docker-compose.shared-server.yml pull && docker compose -f docker-compose.shared-server.yml up -d"
 
     - name: Smoke test
       run: |
         sleep 5
-        ${{ env.SSH }} "curl -sf http://localhost:4001/ -o /dev/null || (docker logs root-app-1 --tail=20 && exit 1)"
+        ${{ env.SSH }} "curl -sf http://localhost:4002/ -o /dev/null || (docker compose -f ~/leptos-ui/docker-compose.shared-server.yml logs app --tail=20 && exit 1)"
 
     - name: Cleanup old Docker images
       run: |
