@@ -30,5 +30,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=target/site/pkg/deploy_rust_ui.css");
     println!("cargo:rerun-if-changed=build.rs");
 
+    // Read the Tauri app version so download links stay in sync with the
+    // actual release asset filenames (Tauri bundles as `Rust.UI_{version}_*`).
+    let tauri_conf = std::fs::read_to_string("../src-tauri/tauri.conf.json")?;
+    let app_version = tauri_conf
+        .split("\"version\"")
+        .nth(1)
+        .and_then(|rest| rest.split('"').nth(1))
+        .ok_or("could not find \"version\" in tauri.conf.json")?;
+    println!("cargo:rustc-env=APP_VERSION={app_version}");
+    println!("cargo:rerun-if-changed=../src-tauri/tauri.conf.json");
+
     Ok(())
 }

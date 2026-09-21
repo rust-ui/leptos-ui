@@ -10,6 +10,7 @@ use strum::{EnumIter, IntoEnumIterator};
 use crate::components::navigation::header_docs::HeaderDocs;
 
 const BASE_DOWNLOAD_URL: &str = "https://github.com/rust-ui/releases/releases/latest/download";
+const APP_VERSION: &str = env!("APP_VERSION");
 
 struct DownloadFile {
     label: &'static str,
@@ -19,7 +20,8 @@ struct DownloadFile {
 
 impl DownloadFile {
     fn url(&self) -> String {
-        format!("{}/{}", BASE_DOWNLOAD_URL, self.filename)
+        let filename = self.filename.replace("{version}", APP_VERSION);
+        format!("{}/{}", BASE_DOWNLOAD_URL, filename)
     }
 }
 
@@ -51,8 +53,8 @@ impl Platform {
         match self {
             Platform::MacOs => &[DownloadFile { label: ".dmg", filename: "rust-ui.dmg", size: "1.6 MB" }],
             Platform::Linux => &[
-                DownloadFile { label: ".AppImage", filename: "rust-ui_amd64.AppImage", size: "~5 MB" },
-                DownloadFile { label: ".deb", filename: "rust-ui_amd64.deb", size: "~3 MB" },
+                DownloadFile { label: ".AppImage", filename: "Rust.UI_{version}_amd64.AppImage", size: "~5 MB" },
+                DownloadFile { label: ".deb", filename: "Rust.UI_{version}_amd64.deb", size: "~3 MB" },
             ],
             Platform::Windows => &[
                 DownloadFile { label: ".msi", filename: "rust-ui_x64_en-US.msi", size: "~4 MB" },
