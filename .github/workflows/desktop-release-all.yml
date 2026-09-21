@@ -50,10 +50,12 @@ jobs:
         working-directory: src-tauri
         # leptos-ui/.cargo/config.toml sets `-fuse-ld=lld` for aarch64-apple-darwin
         # (dev-machine convenience, cargo inherits it here since src-tauri is a
-        # subdirectory). GitHub's macOS runner doesn't have lld installed, so clear
-        # it for this build instead of installing lld just to skip it.
+        # subdirectory). GitHub's macOS runner doesn't have lld installed. RUSTFLAGS
+        # is the only override that reliably beats the inherited config value here
+        # (CARGO_TARGET_<triple>_RUSTFLAGS is same-precedence as the config file
+        # entry it's meant to replace, so it didn't take).
         env:
-          CARGO_TARGET_AARCH64_APPLE_DARWIN_RUSTFLAGS: ""
+          RUSTFLAGS: ""
         run: cargo tauri build --target aarch64-apple-darwin
 
       - name: Upload artifacts
@@ -95,7 +97,11 @@ jobs:
           key: linux-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Tauri CLI
-        run: cargo install tauri-cli --locked
+        # No --locked: tauri-cli's bundled lockfile pins rustix v0.37.28, which
+        # fails to compile against current rustc (internal-attribute usage rustc
+        # no longer accepts) regardless of stable/nightly channel. Let cargo
+        # resolve a newer, compatible rustix instead.
+        run: cargo install tauri-cli
 
       - name: Build Tauri
         working-directory: src-tauri
