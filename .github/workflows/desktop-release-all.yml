@@ -97,11 +97,15 @@ jobs:
           key: linux-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Tauri CLI
-        # No --locked: tauri-cli's bundled lockfile pins rustix v0.37.28, which
-        # fails to compile against current rustc (internal-attribute usage rustc
-        # no longer accepts) regardless of stable/nightly channel. Let cargo
-        # resolve a newer, compatible rustix instead.
-        run: cargo install tauri-cli
+        # tauri-cli pulls clap -> textwrap -> terminal_size 0.2.x, which hard-pins
+        # `rustix = "0.37.1"` in its own Cargo.toml (not a lockfile artifact: fresh
+        # resolution picks the same version). rustix 0.37.x uses internal rustc
+        # attributes (rustc_layout_scalar_valid_range_*) that current rustc rejects
+        # on any channel. RUSTC_BOOTSTRAP=1 unlocks internal-attribute gating for
+        # this one build instead of waiting on upstream to bump terminal_size.
+        env:
+          RUSTC_BOOTSTRAP: "1"
+        run: cargo install tauri-cli --locked
 
       - name: Build Tauri
         working-directory: src-tauri
