@@ -171,20 +171,22 @@ jobs:
           merge-multiple: true
 
       - name: Normalize asset filenames
-        # TODO: msi/exe renaming untested — no Windows build has produced assets
-        # yet (not present in the v0.1.24 release). Verify the glob actually
-        # matches once build-windows succeeds and uploads for real.
         run: |
           # Tauri bakes the version into bundle filenames (e.g. Rust.UI_0.1.24_amd64.AppImage).
           # rust-ui.com's download page links to "latest/download/<static-name>", which requires
           # a filename that doesn't change between releases. Rename here instead of chasing the
           # version on the website side.
-          shopt -s nullglob
-          for f in bundles/*.dmg; do mv "$f" bundles/rust-ui.dmg; done
-          for f in bundles/*.AppImage; do mv "$f" bundles/rust-ui_amd64.AppImage; done
-          for f in bundles/*.deb; do mv "$f" bundles/rust-ui_amd64.deb; done
-          for f in bundles/*.msi; do mv "$f" bundles/rust-ui_x64_en-US.msi; done
-          for f in bundles/*.exe; do mv "$f" bundles/rust-ui_x64-setup.exe; done
+          #
+          # merge-multiple keeps each artifact's own internal directory structure
+          # (appimage/, deb/, msi/, nsis/), so the bundle files land in nested dirs,
+          # not directly under bundles/ — glob recursively (globstar) instead of
+          # bundles/*.ext.
+          shopt -s nullglob globstar
+          for f in bundles/**/*.dmg; do mv "$f" bundles/rust-ui.dmg; done
+          for f in bundles/**/*.AppImage; do mv "$f" bundles/rust-ui_amd64.AppImage; done
+          for f in bundles/**/*.deb; do mv "$f" bundles/rust-ui_amd64.deb; done
+          for f in bundles/**/*.msi; do mv "$f" bundles/rust-ui_x64_en-US.msi; done
+          for f in bundles/**/*.exe; do mv "$f" bundles/rust-ui_x64-setup.exe; done
           ls -la bundles/
 
       - name: Create release if not exists
