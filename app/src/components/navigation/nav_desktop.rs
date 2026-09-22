@@ -18,7 +18,7 @@ const NAV_LINK_CLASS: &str =
     "inline-flex items-center px-2.5 py-1.5 h-8 text-sm font-medium rounded-md transition-colors hover:bg-accent group";
 // text-shadow trick: a same-colored duplicate of the label sits one line-height below the
 // visible text. On hover the span translates up by that same offset, so the shadow copy
-// slides into view in place of the original, an alway-on-hand "slide up" effect from a
+// slides into view in place of the original, an always-on-hand "slide up" effect from a
 // single span (no duplicated markup needed).
 const NAV_LINK_TEXT_CLASS: &str =
     "inline-block transition-transform duration-300 ease-out group-hover:-translate-y-[1.2em] [text-shadow:0_1.2em_0_var(--foreground)]";
