@@ -31,8 +31,10 @@ struct NavigationMenuItemContext {
 /*                       NAVIGATION MENU                       */
 /* ========================================================== */
 
-/// Root navigation wrapper. All content panels are absolutely positioned
-/// relative to this element, creating a shared viewport effect without portaling.
+/// Root navigation wrapper. All content panels are anchored to this element's
+/// rect (computed via JS, `position: fixed`), creating a shared viewport effect
+/// without portaling, and staying correct under sticky/backdrop-blur ancestors
+/// where plain CSS `position: absolute` breaks.
 #[component]
 pub fn NavigationMenu(children: Children, #[prop(optional, into)] class: String) -> impl IntoView {
     let menu_id = use_random_id_for("navmenu");
@@ -90,6 +92,17 @@ pub fn NavigationMenu(children: Children, #[prop(optional, into)] class: String)
                             const triggers = [...menuRoot.querySelectorAll('[data-nav-trigger]')];
                             const getContent = (id) => menuRoot.querySelector('[data-nav-content="' + id + '"]');
 
+                            const positionContents = () => {{
+                                const rect = menuRoot.getBoundingClientRect();
+                                menuRoot.querySelectorAll('[data-nav-content]').forEach(content => {{
+                                    content.style.top = (rect.bottom + 6) + 'px';
+                                    content.style.left = rect.left + 'px';
+                                }});
+                            }};
+                            positionContents();
+                            window.addEventListener('resize', positionContents);
+                            window.addEventListener('scroll', positionContents, true);
+
                             let activeItemId = null;
                             let activeIndex  = -1;
                             let hideTimer;
@@ -99,6 +112,7 @@ pub fn NavigationMenu(children: Children, #[prop(optional, into)] class: String)
                                 const itemId  = trigger.getAttribute('data-nav-trigger');
                                 const content = getContent(itemId);
                                 if (!content || activeItemId === itemId) return;
+                                positionContents();
 
                                 // Close the previous panel with an exit animation
                                 if (activeItemId) {{
@@ -242,14 +256,15 @@ pub fn NavigationMenuTrigger(children: Children, #[prop(optional, into)] class: 
 /*                  NAVIGATION MENU CONTENT                    */
 /* ========================================================== */
 
-/// Absolutely positioned relative to NavigationMenu (not NavigationMenuItem),
-/// so all content panels share the same anchor point below the menu bar.
+/// Fixed-positioned (top/left set via JS from NavigationMenu's rect), so all
+/// content panels share the same anchor point below the menu bar regardless of
+/// ancestor stacking context (sticky headers, backdrop-blur, etc).
 #[component]
 pub fn NavigationMenuContent(children: Children, #[prop(optional, into)] class: String) -> impl IntoView {
     let ctx = expect_context::<NavigationMenuItemContext>();
 
     let class = tw_merge!(
-        "absolute left-0 top-full mt-1.5 z-50 w-full rounded-md border bg-popover p-4 shadow-md data-[state=closed]:hidden md:w-auto",
+        "fixed z-50 w-full rounded-md border bg-popover p-4 shadow-md data-[state=closed]:hidden md:w-auto",
         class
     );
 
@@ -269,6 +284,8 @@ pub fn NavigationMenuLink(
     children: Children,
     #[prop(optional, into)] class: String,
     #[prop(optional, into)] href: String,
+    #[prop(optional, into)] target: Option<String>,
+    #[prop(optional, into)] rel: Option<String>,
 ) -> impl IntoView {
     let class = tw_merge!(
         "inline-flex items-center rounded-sm text-sm font-medium transition-colors hover:text-foreground text-foreground/70 focus:outline-none",
@@ -276,7 +293,7 @@ pub fn NavigationMenuLink(
     );
 
     view! {
-        <a data-name="NavigationMenuLink" href=href class=class>
+        <a data-name="NavigationMenuLink" href=href target=target rel=rel class=class>
             {children()}
         </a>
     }
