@@ -11,7 +11,7 @@ on:
         required: true
 
 env:
-  RELEASE_REPO: rust-ui/releases
+  RELEASE_REPO: rust-ui/releases-leptos
   RUSTC_WRAPPER: ""
 
 jobs:
