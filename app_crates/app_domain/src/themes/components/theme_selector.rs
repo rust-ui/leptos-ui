@@ -28,18 +28,18 @@ pub fn ThemeSelector() -> impl IntoView {
     let c = RwSignal::new(DEFAULT_C);
     let h = RwSignal::new(DEFAULT_H);
 
-    let color_primary_memo = Memo::new(move |_| Oklch::new(l(), c(), h()).to_oklch_string());
+    let color_primary_memo = Memo::new(move |_| Oklch::new(l.get(), c.get(), h.get()).to_oklch_string());
 
     let color_secondary_memo = Memo::new(move |_| {
-        let primary = Oklch::new(l(), c(), h());
+        let primary = Oklch::new(l.get(), c.get(), h.get());
         let secondary = primary.secondary_with_factor(0.9);
         secondary.to_oklch_string()
     });
 
     // Memo for theme string using .replace
     let theme_memo = Memo::new(move |_| {
-        let primary = color_primary_memo();
-        let secondary = color_secondary_memo();
+        let primary = color_primary_memo.get();
+        let secondary = color_secondary_memo.get();
         THEME_TEMPLATE.replace("{primary}", &primary).replace("{secondary}", &secondary)
     });
 
@@ -49,7 +49,7 @@ pub fn ThemeSelector() -> impl IntoView {
                 <RadiusSelector />
                 <OklchSelector l=l c=c h=h color_primary_memo color_secondary_memo />
                 // * Derive the theme signal
-                <CopyCodeDialog theme=Signal::derive(theme_memo) />
+                <CopyCodeDialog theme=Signal::derive(move || theme_memo.get()) />
             </div>
         </section>
     }
@@ -68,8 +68,8 @@ pub fn OklchSelector(
     #[prop(into)] color_secondary_memo: Signal<String>,
 ) -> impl IntoView {
     Effect::new(move |_| {
-        let primary = color_primary_memo();
-        let secondary = color_secondary_memo();
+        let primary = color_primary_memo.get();
+        let secondary = color_secondary_memo.get();
         // Try to find .dark, else use documentElement
         let window = window();
         let Some(document) = window.document() else { return };
@@ -89,7 +89,7 @@ pub fn OklchSelector(
     view! {
         <div class="w-full">
             <OklchTitle>"Lightness (L)"</OklchTitle>
-            <OklchNum>{move || format!("({} / {})", l(), MAX_L)}</OklchNum>
+            <OklchNum>{move || format!("({} / {})", l.get(), MAX_L)}</OklchNum>
             <Slider
                 class="text-muted-foreground"
                 attr:min="0"
@@ -104,7 +104,7 @@ pub fn OklchSelector(
         </div>
         <div class="w-full">
             <OklchTitle>"Chroma (C)"</OklchTitle>
-            <OklchNum>{move || format!("({} / {})", c(), MAX_C)}</OklchNum>
+            <OklchNum>{move || format!("({} / {})", c.get(), MAX_C)}</OklchNum>
             <Slider
                 class="text-muted-foreground"
                 attr:min="0"
@@ -119,7 +119,7 @@ pub fn OklchSelector(
         </div>
         <div class="w-full">
             <OklchTitle>"Hue (H)"</OklchTitle>
-            <OklchNum>{move || format!("({} / {})", h(), MAX_H)}</OklchNum>
+            <OklchNum>{move || format!("({} / {})", h.get(), MAX_H)}</OklchNum>
             <Slider
                 class="text-muted-foreground"
                 attr:min="0"
