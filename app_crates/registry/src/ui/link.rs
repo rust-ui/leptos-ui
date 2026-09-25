@@ -28,7 +28,7 @@ pub fn Link(
     let current_path = Memo::new(move |_| location.pathname.get());
 
     let is_active = move |path_segment: &str| -> bool {
-        let current = current_path();
+        let current = current_path.get();
         match &match_type {
             PathMatchType::StartsWith => current.starts_with(path_segment),
             PathMatchType::Exact => current == path_segment,

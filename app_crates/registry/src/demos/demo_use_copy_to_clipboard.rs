@@ -16,7 +16,7 @@ pub fn DemoUseCopyToClipboard() -> impl IntoView {
 
     view! {
         <div class="flex gap-2">
-            <Input prop:value=move || url_signal().to_string() attr:readonly=true class="flex-1" />
+            <Input prop:value=move || url_signal.get().to_string() attr:readonly=true class="flex-1" />
 
             <Button variant=ButtonVariant::Outline on:click=handle_copy>
                 {move || {
