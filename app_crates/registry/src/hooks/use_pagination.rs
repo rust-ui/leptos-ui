@@ -19,7 +19,7 @@ pub fn use_pagination() -> PaginationContext {
     let location = use_location();
     let current_page_str = QueryUtils::extract(QUERY::PAGE.to_string());
 
-    let current_page = Memo::new(move |_| current_page_str().and_then(|s| s.parse::<u32>().ok()).unwrap_or(FIRST_PAGE));
+    let current_page = Memo::new(move |_| current_page_str.get().and_then(|s| s.parse::<u32>().ok()).unwrap_or(FIRST_PAGE));
 
     let page_href = Callback::new(move |page: u32| {
         location.query.with(|q| {

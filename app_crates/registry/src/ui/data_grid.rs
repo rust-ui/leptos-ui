@@ -833,7 +833,7 @@ pub fn EditableCellContent<C: DataGridColumn + 'static>(
 
     view! {
         <Show
-            when=is_editing
+            when=move || is_editing.get()
             fallback=move || {
                 view! {
                     <GridCellContent
